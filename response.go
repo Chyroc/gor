@@ -9,16 +9,6 @@ import (
 	"github.com/unrolled/render"
 )
 
-// Res is http ResponseWriter and some gor Response method
-type Res struct {
-	w      http.ResponseWriter
-	exit   bool
-	render *render.Render
-
-	Response   interface{}
-	StatusCode int
-}
-
 func httpResponseWriterToRes(httpResponseWriter http.ResponseWriter, g *Gor) *Res {
 	return &Res{
 		httpResponseWriter,
@@ -29,11 +19,14 @@ func httpResponseWriterToRes(httpResponseWriter http.ResponseWriter, g *Gor) *Re
 	}
 }
 
-func (res *Res) Write(data []byte) (int, error) {
-	res.exit = true
-	res.Response = string(data)
-	res.w.WriteHeader(res.StatusCode)
-	return res.w.Write(data)
+// Res is http ResponseWriter and some gor Response method
+type Res struct {
+	w      http.ResponseWriter
+	exit   bool
+	render *render.Render
+
+	Response   interface{}
+	StatusCode int
 }
 
 // Status set Response http status code
@@ -53,6 +46,13 @@ func (res *Res) SendStatus(code int) {
 	}
 
 	res.Status(code).Send(http.StatusText(code))
+}
+
+func (res *Res) Write(data []byte) (int, error) {
+	res.exit = true
+	res.Response = string(data)
+	res.w.WriteHeader(res.StatusCode)
+	return res.w.Write(data)
 }
 
 // Send Send a Response
@@ -100,6 +100,11 @@ func (res *Res) JSON(v interface{}) {
 	res.Write(b)
 }
 
+// JSONP Send json Response with JSONP support
+func (res *Res) JSONP(v interface{}) {
+	// todo
+}
+
 // HTML render HTML
 func (res *Res) HTML(v string, data interface{}) {
 	if err := res.render.HTML(res, res.StatusCode, v, data); err != nil {
@@ -113,6 +118,21 @@ func (res *Res) HTML(v string, data interface{}) {
 func (res *Res) Redirect(path string) {
 	res.w.Header().Set("Location", path)
 	res.Status(http.StatusFound).Write([]byte(fmt.Sprintf(`%s. Redirecting to %s`, http.StatusText(http.StatusFound), path)))
+}
+
+// Download download
+func (res *Res) Download(filepath string, filename ...string) {
+	// todo
+}
+
+// Error send erroe Response
+func (res *Res) Error(v string) {
+	res.Status(http.StatusInternalServerError).Send(v)
+}
+
+// End end the request
+func (res *Res) End() {
+	res.exit = true
 }
 
 // AddHeader append (key, val) to headers
@@ -137,12 +157,7 @@ func (res *Res) SetCookie(key, val string, option ...Cookie) {
 	http.SetCookie(res.w, cookie)
 }
 
-// Error send erroe Response
-func (res *Res) Error(v string) {
-	res.Status(http.StatusInternalServerError).Send(v)
-}
-
-// End end the request
-func (res *Res) End() {
-	res.exit = true
+// ClearCookie clear cookie
+func (res *Res) ClearCookie(key string, option ...Cookie) {
+	// todo
 }

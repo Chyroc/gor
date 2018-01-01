@@ -11,17 +11,22 @@ type appInterface interface {
 }
 
 type resInterface interface {
-	Write(data []byte) (int, error)
 	Status(code int) *Res
 	SendStatus(code int)
+
+	Write(data []byte) (int, error)
 	Send(v interface{})
 	JSON(v interface{})
+	JSONP(v interface{})
 	HTML(v string, data interface{})
 	Redirect(path string)
-	AddHeader(key, val string)
-	SetCookie(key, val string, option ...Cookie)
+	Download(filepath string, filename ...string)
 	Error(v string)
 	End()
+
+	AddHeader(key, val string)
+	SetCookie(key, val string, option ...Cookie)
+	ClearCookie(key string, option ...Cookie)
 }
 
 type reqInterface interface {

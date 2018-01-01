@@ -22,10 +22,10 @@ type Cookie struct {
 	Unparsed []string // Raw text of unparsed attribute-value pairs
 }
 
-func (c *Cookie) toHTTPCookie(key, val string) *http.Cookie {
+func (c *Cookie) toHTTPCookie(key string, val ...string) *http.Cookie {
 	return &http.Cookie{
 		Name:  key,
-		Value: val,
+		Value: val[0],
 
 		Path:       c.Path,
 		Domain:     c.Domain,
